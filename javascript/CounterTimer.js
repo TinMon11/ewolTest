@@ -77,7 +77,6 @@ btnDisminiur.addEventListener("click", () => {
 
 
 btnStartDown.addEventListener("click", () => {
-    registroVueltas.innerHTML = "";
     if (btnStartDown.innerText == "INICIAR TEMPORIZADOR") {
         countDown()
     } else {
@@ -87,41 +86,52 @@ btnStartDown.addEventListener("click", () => {
 
 btnStartUp.addEventListener("click", () => {
 
-    if (btnStartUp.innerText == "INICIAR CRONOMETRO") {
-        timerUp()
-        segundos >= 0 && mostrarBtnVueltas()
-    } else {
-        stopTimer()
+    if (!timerRunning) {
+
+        if (btnStartUp.innerText == "INICIAR CRONOMETRO") {
+            timerUp()
+            segundos >= 0 && mostrarBtnVueltas()
+        } else {
+            stopTimer()
+        }
     }
-})
+}
+)
 
 // Declaracion de Funciones
 
 function countDown() {
 
     if ((!cronRunning) && segundos > 0) {
+        registroVueltas.innerHTML = "";
         (intervalo = setInterval(timer, 1000))
     }
 }
 
 function timer() {
 
-    if (segundos > 0) {
-        timerRunning = true;
-        btnStartDown.innerText = "DETENER TEMPORIZADOR"
-        btnStartUp.classList.add("boton-disabled")
+    if (!cronRunning) {
 
-        segundos = segundos - 1;
-        counterTimer[0].innerHTML = `<p class="number">${segundos}</p>`
-
-    } else {
-        stopTimer()
-        backgrounChanger()
-    };
+        if (segundos > 0) {
+            timerRunning = true;
+            btnStartDown.innerText = "DETENER TEMPORIZADOR"
+            btnStartUp.classList.add("boton-disabled")
+            segundos = segundos - 1;
+            counterTimer[0].innerHTML = `<p class="number">${segundos}</p>`
+        } else {
+            stopTimer()
+            backgrounChanger()
+        };
+    }
 }
 
 function backgrounChanger() {
+    documento.classList.add("fondo-temporizador")
     btnStartDown.innerHTML = "Temporizador OK";
+    btnStartDown.addEventListener("click", () => {
+        clearInterval(transicionBG)
+        documento.classList.remove("fondo-temporizador")
+    })
     transicionBG = setInterval(colorBG, 2000)
 }
 
