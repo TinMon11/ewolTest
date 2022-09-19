@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: white;
+    transition: all 2s ease;
+}
+
+.container {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    transition: all 2s ease;
+}
+
+
+/* Para cambio de color cuando el temp va a 0*/
+
+.fondo-temporizador{
+    background-color: #D50000;
+    transition: all 2s ease;
+}
+
+.panel {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+}
+
+.botones-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.boton-panel {
+    cursor: pointer;
+    font-weight: 700;
+    margin: 10px;
+    padding: 10px;
+    background-color: rgb(25, 150, 20);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0px 10 10px rgba(46, 229, 157, 0.7);
+}
+
+.boton-disabled {
+    background-color: rgb(66, 66, 66);
+    color: grey;
+}
+
+.counter-timer {
+    align-self: center;
+    width:max-content;
+}
+
+.number {
+    font-size: 64px;
+    width: 200px;
+    text-align: center;
+    border: none;
+}
+
+.registros{
+    margin-top: 10px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.listadoRegistros {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.inputRegistros {
+    border: none;
+    font-size: 1rem;
+}
