@@ -10,7 +10,7 @@ let btnStartDown = document.getElementById("btn-temporizador")
 let btnStartUp = document.getElementById("btn-cronometro")
 let btnReset = document.getElementById("btn-reset")
 let registroVueltas = document.getElementsByClassName("registros")[0]
-// let inputs = Array.from(document.getElementsByClassName('number'));
+let botonesRegistros = document.getElementsByClassName("botones-registros")[0]
 let counterTimer = document.getElementsByClassName("counter-timer")
 
 // Creo clase "vuelta" para el array de registros de vueltas
@@ -24,12 +24,12 @@ class vuelta {
 
 }
 
-
 let vueltas = [] // Array de vueltas donde llevaré los registros
-let modo = "contador"
+let modo = "contador" // inicializo en modo "contador" la pantalla
 mostrarContador()
 
 
+// al boton de Contador / Tiempo los tomo y asigno funcion para mostrar cada pantalla
 btnContador.addEventListener("click", () => { mostrarContador() })
 btnTiempo.addEventListener("click", () => { mostrarTiempo() })
 
@@ -48,9 +48,9 @@ function mostrarTiempo() {
     btnContador.classList.remove("boton-modo-active")
     btnTiempo.classList.add("boton-modo-active")
     counterTimer[0].innerHTML = `
-                <input class = "number" type="text" maxlength="2" value="00">
-                <input class = "number" type="text" maxlength="2" value="00">
-                <input class = "number" type="text" maxlength="2" value="00">    
+                <input class = "number" type="text" maxlength="2" value="00" onchange="setMinutos(this.value)">:
+                <input class = "number" type="text" maxlength="2" value="00" onchange="setSegundos(this.value)">:
+                <input class = "number" type="text" maxlength="2" value="00" onchange="setMiliseg(this.value)">    
     `
     let inputs = Array.from(document.getElementsByClassName('number'));
     parseNumbers(inputs)
@@ -68,20 +68,22 @@ function parseNumbers(array) {
     }
 }
 
-// parseNumbers(inputs)
-let cronRunning = false // variable para saber si el timer/crono está corriendo         
-let timerRunning = false // variable para saber si el timer/crono está corriendo         
+let cronRunning = false // var para saber si el crono esta corriendo, impide que ejecute el timer si true        
+let timerRunning = false // var para saber si el timer esta corriendo, impide que ejecute el crono si true     
 
-// Agregor los eventlisteners para cada elemento.
+// Agrego los eventlisteners para el resto de elementos.
 
+// Boton de Reset - Vuelve seg a 0, borra registros de vueltas.
 btnReset.addEventListener("click", () => {
     modo === "contador" ? mostrarContador() : mostrarTiempo()
     segundos = 0;
     vueltas = [];
     registroVueltas.innerHTML = "";
+    botonesRegistros.innerHTML = "";
     btnStartDown.classList.add("boton-disabled")
 })
 
+// Boton de Aumentar. Depende del modo, funciona de una u otra manera. Establece estilos de botones de acuerdo a el tiempo indicado en pantalla
 btnAumentar.addEventListener("click", () => {
 
     if (modo == "contador") {
@@ -99,9 +101,9 @@ btnAumentar.addEventListener("click", () => {
         segundos = segundos + 1;
         segundos > 59 && (segundos = 0, minutos = minutos + 1)
         counterTimer[0].innerHTML = `
-        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
-        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
-        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)}>    
+        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
+        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
+        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">    
         `
 
         if (segundos < 0 || minutos < 0 || miliseg < 0) {
@@ -117,6 +119,7 @@ btnAumentar.addEventListener("click", () => {
 })
 
 
+// Boton de Disminuir. Depende del modo, funciona de una u otra manera. Establece estilos de botones de acuerdo a el tiempo indicado en pantalla
 btnDisminiur.addEventListener("click", () => {
 
     if (modo == "contador") {
@@ -128,9 +131,9 @@ btnDisminiur.addEventListener("click", () => {
         segundos = segundos - 1;
         segundos < 0 && (segundos = 59, minutos = minutos - 1)
         counterTimer[0].innerHTML = `
-        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
-        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
-        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)}>    
+        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
+        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
+        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">    
         `
 
         if (segundos < 0 || minutos < 0) {
@@ -144,17 +147,18 @@ btnDisminiur.addEventListener("click", () => {
     }
 })
 
-
+// Boton de temporizador (hacia abajo el tiempo).
 btnStartDown.addEventListener("click", () => {
     if (btnStartDown.innerText == "INICIAR TEMPORIZADOR") {
         countDown()
+        botonesRegistros.innerHTML = ""
     } else {
         stopTimer()
     }
 })
 
+// Boton de cronometro (hacia arriba)
 btnStartUp.addEventListener("click", () => {
-
     if (!timerRunning) {
         if (btnStartUp.innerText == "INICIAR CRONOMETRO") {
             timerUp()
@@ -173,7 +177,7 @@ btnStartUp.addEventListener("click", () => {
 }
 )
 
-// Declaracion de Funciones
+// Declaracion de Funciones para Temporizador (tiempo hacia abajo)
 
 function countDown() {
 
@@ -183,12 +187,17 @@ function countDown() {
             intervalo = setInterval(timer, 1000)
         }
     } else {
-        if (!cronRunning && minutos >= 0 && segundos > 0 & miliseg >= 0) {
-            registroVueltas.innerHTML = "";
-            intervalo = setInterval(timer, 10)
+        if (!cronRunning) {
+            if ((segundos >= 0) && (minutos >= 0) && (miliseg >= 0)) {
+                if ((segundos + minutos + miliseg) > 0) {
+                    registroVueltas.innerHTML = "";
+                    intervalo = setInterval(timer, 10)
+                }
+            }
         }
     }
 }
+
 
 function timer() {
 
@@ -209,6 +218,7 @@ function timer() {
     }
 
     if (modo == "tiempo") {
+
         if (minutos >= 0 && segundos >= 0 && miliseg >= 0) {
 
             timerRunning = true;
@@ -234,15 +244,16 @@ function timer() {
             }
 
             counterTimer[0].innerHTML = `
-             <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
-            <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
-            <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)}>`
+        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
+        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
+        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">    
+        `
         }
     }
 }
 
 
-
+// Funcion para cambiar el fondo cada 2 seg cuando llega el timer a 0.
 function backgrounChanger() {
     documento.classList.add("fondo-temporizador")
     btnStartDown.innerHTML = "Temporizador OK";
@@ -261,6 +272,8 @@ function colorBG() {
     }
 }
 
+
+// Funciones para CRONOMETRO (tiempo hacia arriba)
 function timerUp() {
     if (!timerRunning) {
         (modo == "contador") ? intervalo = setInterval(cronometro, 1000) : intervalo = setInterval(cronometro, 10)
@@ -289,16 +302,16 @@ function cronometro() {
             miliseg > 99 && (segundos = segundos + 1, miliseg = 0)
             segundos > 59 && (segundos = 0, minutos = minutos + 1)
             counterTimer[0].innerHTML = `
-                <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
-                <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
-                <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)}>`
+                <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
+                <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
+                <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">`
         } else {
             stopTimer()
         }
     }
 }
 
-
+// Funcion cuando presionas DETENER en algun momento
 function stopTimer() {
     btnStartDown.innerText = "INICIAR TEMPORIZADOR"
     btnStartUp.innerText = "INICIAR CRONOMETRO"
@@ -307,7 +320,7 @@ function stopTimer() {
     timerRunning = false;
 
     if (modo == "contador") {
-        segundos > 0 && btnStartDown.classList.remove("boton-disabled")
+        segundos >= 0 && btnStartDown.classList.remove("boton-disabled")
         segundos >= 0 && btnStartUp.classList.remove("boton-disabled")
     } else {
         if (segundos >= 0 && minutos >= 0) {
@@ -317,64 +330,86 @@ function stopTimer() {
     }
 }
 
-// Registro de vueltas
+// Registro de vueltas. Botones. Listados de Marcas.
 
 function mostrarBtnVueltas() {
-    registroVueltas.innerHTML = `
+
+    (vueltas.length > 0) ? (
+        botonesRegistros.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
-    `
+    <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>
+    `) :
+        (botonesRegistros.innerHTML = `
+    <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>`
+    )
 }
 
 function registroVuelta() {
-
-
 
     let cantidadRegistros = vueltas.length
     let numero = (cantidadRegistros === 0 ? 1 : (cantidadRegistros + 1))
 
     if (cantidadRegistros === 0) {
-        registroVueltas.innerHTML = `
+        botonesRegistros.innerHTML = `
         <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
         <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>`
     }
 
     // Calculo diferencia con la vuelta anterior
-    let tiempoAnterior = cantidadRegistros === 0 ? 0 : (vueltas[cantidadRegistros - 1].tiempo)
-    let tiempo = segundos;
-    let diferencia = segundos - tiempoAnterior
 
-    let nombre = "Inserte Nombre"
-    let marca = new vuelta(numero, tiempo, diferencia, nombre)
-    vueltas.push(marca)
+    let tiempoAnterior = cantidadRegistros === 0 ? 0 : (vueltas[cantidadRegistros - 1].tiempo)
+
+    if (modo == "contador") {
+        let tiempo = segundos;
+        let diferencia = segundos - tiempoAnterior
+        let nombre = "Inserte Nombre"
+        let marca = new vuelta(numero, tiempo, diferencia, nombre)
+        vueltas.push(marca)
+    } else {
+
+        let minutosAsegundos = minutos * 60;
+        let tiempo = minutosAsegundos + segundos
+        let diferencia = tiempo - tiempoAnterior
+        let nombre = "Inserte Nombre"
+        let marca = new vuelta(numero, tiempo, diferencia, nombre)
+        vueltas.push(marca)
+    }
 
     mostrarVueltasPantalla(vueltas, cantidadRegistros)
-
-
 
 }
 
 function BorrarVueltas() {
     vueltas = [];
-    registroVueltas.innerHTML = `
+    registroVueltas.innerHTML = ""
+    botonesRegistros.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
-    <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>
     `
 }
 
 
 function mostrarVueltasPantalla(vueltas, posicion) {
 
-    registro = document.createElement("div")
-    registro.classList.add("listadoRegistros")
-    registro.innerText = (`Vuelta N° ${vueltas[posicion].numero} - Tiempo ${vueltas[posicion].tiempo} - Diferencia ${vueltas[posicion].diferencia} - `
+    newRegistro = document.createElement('div')
+    newRegistro.innerText = (`Vuelta N° ${vueltas[posicion].numero} - Tiempo ${vueltas[posicion].tiempo} seg. - Diferencia ${vueltas[posicion].diferencia} seg. - `
     )
-
     nombreVuelta = document.createElement("input")
     nombreVuelta.type = "text"
-    nombreVuelta.placeholder = vueltas[posicion].nombre
+    nombreVuelta.placeholder = "Inserte Nombre  "
     nombreVuelta.classList = "inputRegistros"
 
-    registro.appendChild(nombreVuelta)
-    registroVueltas.appendChild(registro)
+    newRegistro.appendChild(nombreVuelta)
+    registroVueltas.appendChild(newRegistro)
 
+}
+
+// Funciones para tomar los valores cuando cambias "a mano" los valores de minutos/seg/miliseg en el modo TIEMPO
+function setMinutos(val) {
+    minutos = Number(val);
+}
+function setSegundos(val) {
+    segundos = Number(val);
+}
+function setMiliseg(val) {
+    miliseg = Number(val);
 }

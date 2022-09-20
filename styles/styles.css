@@ -79,6 +79,8 @@ background-color: rgb(80, 250, 80);
 .counter-timer {
     align-self: center;
     width:max-content;
+    font-size: 32px;
+    background-color: white;
 }
 
 .number {
