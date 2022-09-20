@@ -46,6 +46,7 @@ body {
     font-weight: 700;
     margin: 10px;
     padding: 10px;
+    text-align: center;
     background-color: rgb(25, 150, 20);
     border: none;
     border-radius: 15px;
@@ -57,6 +58,23 @@ body {
     color: grey;
 }
 
+.botones-contador-tiempo {
+    margin: 15px;
+}
+
+.boton-modo{
+    margin: 5px;
+    padding: 10px;
+    border: none;
+    border-radius: 15px;
+    background-color: white;
+    font-weight: bold;
+}
+
+.boton-modo-active{
+background-color: rgb(80, 250, 80);
+}
+
 .counter-timer {
     align-self: center;
     width:max-content;
@@ -64,7 +82,7 @@ body {
 
 .number {
     font-size: 64px;
-    width: 200px;
+    width: 150px;
     text-align: center;
     border: none;
 }

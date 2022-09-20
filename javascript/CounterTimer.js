@@ -2,13 +2,15 @@
 // Tomo los elementos necesarios (botones - inputs del cronometro/timer, etc)
 
 let documento = document.getElementById("container")
+let btnContador = document.getElementById("btn-contador")
+let btnTiempo = document.getElementById("btn-tiempo")
 let btnAumentar = document.getElementById("btn-aumentar")
 let btnDisminiur = document.getElementById("btn-disminuir")
 let btnStartDown = document.getElementById("btn-temporizador")
 let btnStartUp = document.getElementById("btn-cronometro")
 let btnReset = document.getElementById("btn-reset")
 let registroVueltas = document.getElementsByClassName("registros")[0]
-let inputs = Array.from(document.getElementsByClassName('number'));
+// let inputs = Array.from(document.getElementsByClassName('number'));
 let counterTimer = document.getElementsByClassName("counter-timer")
 
 // Creo clase "vuelta" para el array de registros de vueltas
@@ -24,6 +26,35 @@ class vuelta {
 
 
 let vueltas = [] // Array de vueltas donde llevaré los registros
+let modo = "contador"
+mostrarContador()
+
+
+btnContador.addEventListener("click", () => { mostrarContador() })
+btnTiempo.addEventListener("click", () => { mostrarTiempo() })
+
+function mostrarContador() {
+    modo = "contador"
+    btnTiempo.classList.remove("boton-modo-active")
+    btnContador.classList.add("boton-modo-active")
+    counterTimer[0].innerHTML = `
+    <p class="number">0</p>`
+    let inputs = Array.from(document.getElementsByClassName('number'));
+    parseNumbers(inputs)
+}
+
+function mostrarTiempo() {
+    modo = "tiempo"
+    btnContador.classList.remove("boton-modo-active")
+    btnTiempo.classList.add("boton-modo-active")
+    counterTimer[0].innerHTML = `
+                <input class = "number" type="text" maxlength="2" value="00">
+                <input class = "number" type="text" maxlength="2" value="00">
+                <input class = "number" type="text" maxlength="2" value="00">    
+    `
+    let inputs = Array.from(document.getElementsByClassName('number'));
+    parseNumbers(inputs)
+}
 
 // Parseo los numeros del cronometro/timer (si es contador tomo solo 1 elemento, si es Timer tmb los otros)
 function parseNumbers(array) {
@@ -31,47 +62,66 @@ function parseNumbers(array) {
     segundos = Number(array[0].innerHTML)
 
     if (array.length > 1) {
-        miliseg = Number(array[0].innerHTML)
+        miliseg = Number(array[2].value)
         segundos = Number(array[1].value);
-        minutos = Number(array[2].value)
+        minutos = Number(array[0].value)
     }
 }
 
-parseNumbers(inputs)
+// parseNumbers(inputs)
 let cronRunning = false // variable para saber si el timer/crono está corriendo         
 let timerRunning = false // variable para saber si el timer/crono está corriendo         
 
 // Agregor los eventlisteners para cada elemento.
 
 btnReset.addEventListener("click", () => {
+    modo === "contador" ? mostrarContador() : mostrarTiempo()
     segundos = 0
-    counterTimer[0].innerHTML = `<p class="number">${segundos}</p>`
     vueltas = [];
     registroVueltas.innerHTML = "";
     btnStartDown.classList.add("boton-disabled")
 })
 
 btnAumentar.addEventListener("click", () => {
-    segundos = segundos + 1;
-    counterTimer[0].innerHTML = `<p class="number">${segundos}</p>`
 
-    segundos < 0 ? (
-        btnStartUp.classList.add("boton-disabled"),
-        btnStartDown.classList.add("boton-disabled")
-    ) : (
-        btnStartUp.classList.remove("boton-disabled"),
-        segundos > 0 && btnStartDown.classList.remove("boton-disabled")
-    )
+    if (modo == "contador") {
+        segundos = segundos + 1;
+        counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+
+        segundos < 0 ? (
+            btnStartUp.classList.add("boton-disabled"),
+            btnStartDown.classList.add("boton-disabled")
+        ) : (
+            btnStartUp.classList.remove("boton-disabled"),
+            segundos > 0 && btnStartDown.classList.remove("boton-disabled")
+        )
+    } else {
+        segundos = segundos + 1;
+        segundos > 59 && (segundos = 0, minutos = minutos + 1)
+        counterTimer[0].innerHTML = `
+        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
+        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
+        <input class = "number" type="text" maxlength="2" value="04">    
+        `}
 })
 
 
 btnDisminiur.addEventListener("click", () => {
 
-    segundos = segundos - 1;
-    counterTimer[0].innerHTML = `<p class="number">${segundos}</p>`
+    if (modo == "contador") {
+        segundos = segundos - 1;
+        counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+        segundos < 1 && btnStartDown.classList.add("boton-disabled")
+        segundos < 0 && btnStartUp.classList.add("boton-disabled")
+    } else {
 
-    segundos < 1 && btnStartDown.classList.add("boton-disabled")
-    segundos < 0 && btnStartUp.classList.add("boton-disabled")
+        segundos = segundos - 1;
+        segundos < 0 && (segundos = 59, minutos = minutos - 1)
+        counterTimer[0].innerHTML = `
+        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
+        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
+        <input class = "number" type="text" maxlength="2" value="04">    
+        `}
 
 })
 
@@ -117,7 +167,7 @@ function timer() {
             btnStartDown.innerText = "DETENER TEMPORIZADOR"
             btnStartUp.classList.add("boton-disabled")
             segundos = segundos - 1;
-            counterTimer[0].innerHTML = `<p class="number">${segundos}</p>`
+            counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
         } else {
             stopTimer()
             backgrounChanger()
@@ -153,7 +203,7 @@ function cronometro() {
         btnStartDown.classList.add("boton-disabled")
         btnStartUp.innerText = "DETENER CRONOMETRO"
         segundos = segundos + 1;
-        counterTimer[0].innerHTML = `<p class="number">${segundos}</p>`
+        counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
         running = true
     } else {
         stopTimer()
