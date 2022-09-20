@@ -76,7 +76,7 @@ let timerRunning = false // variable para saber si el timer/crono está corriend
 
 btnReset.addEventListener("click", () => {
     modo === "contador" ? mostrarContador() : mostrarTiempo()
-    segundos = 0
+    segundos = 0;
     vueltas = [];
     registroVueltas.innerHTML = "";
     btnStartDown.classList.add("boton-disabled")
@@ -101,8 +101,19 @@ btnAumentar.addEventListener("click", () => {
         counterTimer[0].innerHTML = `
         <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
         <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
-        <input class = "number" type="text" maxlength="2" value="04">    
-        `}
+        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)}>    
+        `
+
+        if (segundos < 0 || minutos < 0 || miliseg < 0) {
+            btnStartUp.classList.add("boton-disabled")
+            btnStartDown.classList.add("boton-disabled")
+        } else {
+            btnStartUp.classList.remove("boton-disabled")
+            if (segundos > 0 || minutos > 0) {
+                btnStartDown.classList.remove("boton-disabled")
+            }
+        }
+    }
 })
 
 
@@ -114,15 +125,23 @@ btnDisminiur.addEventListener("click", () => {
         segundos < 1 && btnStartDown.classList.add("boton-disabled")
         segundos < 0 && btnStartUp.classList.add("boton-disabled")
     } else {
-
         segundos = segundos - 1;
         segundos < 0 && (segundos = 59, minutos = minutos - 1)
         counterTimer[0].innerHTML = `
         <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
         <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
-        <input class = "number" type="text" maxlength="2" value="04">    
-        `}
+        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)}>    
+        `
 
+        if (segundos < 0 || minutos < 0) {
+            btnStartUp.classList.add("boton-disabled")
+            btnStartDown.classList.add("boton-disabled")
+        } else {
+            if (segundos === 0 && minutos === 0) {
+                btnStartDown.classList.add("boton-disabled")
+            }
+        }
+    }
 })
 
 
@@ -137,10 +156,16 @@ btnStartDown.addEventListener("click", () => {
 btnStartUp.addEventListener("click", () => {
 
     if (!timerRunning) {
-
         if (btnStartUp.innerText == "INICIAR CRONOMETRO") {
             timerUp()
-            segundos >= 0 && mostrarBtnVueltas()
+            if (modo == "contador" && segundos >= 0) {
+                mostrarBtnVueltas()
+            }
+            else {
+                if (segundos >= 0 && minutos >= 0) {
+                    mostrarBtnVueltas();
+                }
+            }
         } else {
             stopTimer()
         }
@@ -152,28 +177,71 @@ btnStartUp.addEventListener("click", () => {
 
 function countDown() {
 
-    if ((!cronRunning) && segundos > 0) {
-        registroVueltas.innerHTML = "";
-        (intervalo = setInterval(timer, 1000))
+    if (modo == "contador") {
+        if (!cronRunning && segundos > 0) {
+            registroVueltas.innerHTML = "";
+            intervalo = setInterval(timer, 1000)
+        }
+    } else {
+        if (!cronRunning && minutos >= 0 && segundos > 0 & miliseg >= 0) {
+            registroVueltas.innerHTML = "";
+            intervalo = setInterval(timer, 10)
+        }
     }
 }
 
 function timer() {
 
-    if (!cronRunning) {
-
+    if (modo == "contador") {
         if (segundos > 0) {
             timerRunning = true;
             btnStartDown.innerText = "DETENER TEMPORIZADOR"
             btnStartUp.classList.add("boton-disabled")
-            segundos = segundos - 1;
-            counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+
+            if (modo == "contador") {
+                segundos = segundos - 1;
+                counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+            }
         } else {
             stopTimer()
             backgrounChanger()
-        };
+        }
+    }
+
+    if (modo == "tiempo") {
+        if (minutos >= 0 && segundos >= 0 && miliseg >= 0) {
+
+            timerRunning = true;
+            btnStartDown.innerText = "DETENER TEMPORIZADOR"
+            btnStartUp.classList.add("boton-disabled")
+
+            if (miliseg > 0) {
+                miliseg = miliseg - 1;
+            } else {
+                if (segundos > 0) {
+                    miliseg = 99;
+                    segundos = segundos - 1;
+                } else {
+                    if (minutos > 0) {
+                        miliseg = 99;
+                        segundos = 59;
+                        minutos = minutos - 1;
+                    } else {
+                        stopTimer()
+                        backgrounChanger()
+                    }
+                }
+            }
+
+            counterTimer[0].innerHTML = `
+             <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
+            <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
+            <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)}>`
+        }
     }
 }
+
+
 
 function backgrounChanger() {
     documento.classList.add("fondo-temporizador")
@@ -194,31 +262,59 @@ function colorBG() {
 }
 
 function timerUp() {
-    !timerRunning && (intervalo = setInterval(cronometro, 1000))
+    if (!timerRunning) {
+        (modo == "contador") ? intervalo = setInterval(cronometro, 1000) : intervalo = setInterval(cronometro, 10)
+    }
 }
 
 function cronometro() {
-    cronRunning = true;
-    if (segundos >= 0) {
-        btnStartDown.classList.add("boton-disabled")
-        btnStartUp.innerText = "DETENER CRONOMETRO"
-        segundos = segundos + 1;
-        counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
-        running = true
+
+    if (modo == "contador") {
+        if (segundos >= 0) {
+            cronRunning = true;
+            btnStartDown.classList.add("boton-disabled")
+            btnStartUp.innerText = "DETENER CRONOMETRO"
+            segundos = segundos + 1;
+            counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+        }
+        else { stopTimer() }
+
     } else {
-        stopTimer()
-    };
+        if (minutos >= 0 && miliseg >= 0) {
+            cronRunning = true;
+            btnStartDown.classList.add("boton-disabled")
+            btnStartUp.innerText = "DETENER CRONOMETRO"
+
+            miliseg = miliseg + 1;
+            miliseg > 99 && (segundos = segundos + 1, miliseg = 0)
+            segundos > 59 && (segundos = 0, minutos = minutos + 1)
+            counterTimer[0].innerHTML = `
+                <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)}>
+                <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}>
+                <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)}>`
+        } else {
+            stopTimer()
+        }
+    }
 }
+
 
 function stopTimer() {
     btnStartDown.innerText = "INICIAR TEMPORIZADOR"
     btnStartUp.innerText = "INICIAR CRONOMETRO"
-    segundos > 0 && btnStartDown.classList.remove("boton-disabled")
-    segundos >= 0 && btnStartUp.classList.remove("boton-disabled")
     clearInterval(intervalo);
     cronRunning = false;
     timerRunning = false;
 
+    if (modo == "contador") {
+        segundos > 0 && btnStartDown.classList.remove("boton-disabled")
+        segundos >= 0 && btnStartUp.classList.remove("boton-disabled")
+    } else {
+        if (segundos >= 0 && minutos >= 0) {
+            btnStartUp.classList.remove("boton-disabled")
+            btnStartDown.classList.remove("boton-disabled")
+        }
+    }
 }
 
 // Registro de vueltas
@@ -226,15 +322,21 @@ function stopTimer() {
 function mostrarBtnVueltas() {
     registroVueltas.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
-    <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>
     `
-
 }
 
 function registroVuelta() {
 
+
+
     let cantidadRegistros = vueltas.length
     let numero = (cantidadRegistros === 0 ? 1 : (cantidadRegistros + 1))
+
+    if (cantidadRegistros === 0) {
+        registroVueltas.innerHTML = `
+        <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
+        <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>`
+    }
 
     // Calculo diferencia con la vuelta anterior
     let tiempoAnterior = cantidadRegistros === 0 ? 0 : (vueltas[cantidadRegistros - 1].tiempo)
@@ -246,6 +348,9 @@ function registroVuelta() {
     vueltas.push(marca)
 
     mostrarVueltasPantalla(vueltas, cantidadRegistros)
+
+
+
 }
 
 function BorrarVueltas() {
