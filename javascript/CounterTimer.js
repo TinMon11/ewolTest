@@ -52,7 +52,7 @@ function mostrarContador() {
     btnTiempo.classList.remove("boton-modo-active")
     btnContador.classList.add("boton-modo-active")
     counterTimer[0].innerHTML = `
-    <p class="number">0</p>`
+    <p class="number">00</p>`
     let inputs = Array.from(document.getElementsByClassName('number'));
     parseNumbers(inputs)
 }
@@ -70,7 +70,7 @@ function mostrarTiempo() {
     `
     let inputs = Array.from(document.getElementsByClassName('number'));
     parseNumbers(inputs)
-    
+
 }
 
 // Parseo los numeros del cronometro/timer (si es contador tomo solo 1 elemento, si es Timer tmb los otros)
@@ -104,7 +104,7 @@ btnAumentar.addEventListener("click", () => {
 
     if (modo == "contador") {
         segundos = segundos + 1;
-        counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+        pintarModoContador ()
 
         segundos < 0 ? (
             btnStartUp.classList.add("boton-disabled"),
@@ -116,11 +116,7 @@ btnAumentar.addEventListener("click", () => {
     } else {
         segundos = segundos + 1;
         segundos > 59 && (segundos = 0, minutos = minutos + 1)
-        counterTimer[0].innerHTML = `
-        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
-        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
-        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">    
-        `
+        pintarModoTiempo()
 
         if (segundos < 0 || minutos < 0 || miliseg < 0) {
             btnStartUp.classList.add("boton-disabled")
@@ -140,17 +136,13 @@ btnDisminiur.addEventListener("click", () => {
 
     if (modo == "contador") {
         segundos = segundos - 1;
-        counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+        pintarModoContador ()
         segundos < 1 && btnStartDown.classList.add("boton-disabled")
         segundos < 0 && btnStartUp.classList.add("boton-disabled")
     } else {
         segundos = segundos - 1;
         segundos < 0 && (segundos = 59, minutos = minutos - 1)
-        counterTimer[0].innerHTML = `
-        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
-        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
-        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">    
-        `
+        pintarModoTiempo()
 
         if (segundos < 0 || minutos < 0) {
             btnStartUp.classList.add("boton-disabled")
@@ -226,7 +218,7 @@ function timer() {
 
             if (modo == "contador") {
                 segundos = segundos - 1;
-                counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+                pintarModoContador ()
             }
         } else {
             stopTimer()
@@ -259,11 +251,7 @@ function timer() {
                 }
             }
 
-            counterTimer[0].innerHTML = `
-        <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
-        <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
-        <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">    
-        `
+            pintarModoTiempo()
         }
     }
 }
@@ -303,7 +291,7 @@ function cronometro() {
             btnStartDown.classList.add("boton-disabled")
             btnStartUp.innerText = "DETENER CRONOMETRO"
             segundos = segundos + 1;
-            counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
+            pintarModoContador ()
         }
         else { stopTimer() }
 
@@ -316,10 +304,7 @@ function cronometro() {
             miliseg = miliseg + 1;
             miliseg > 99 && (segundos = segundos + 1, miliseg = 0)
             segundos > 59 && (segundos = 0, minutos = minutos + 1)
-            counterTimer[0].innerHTML = `
-                <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
-                <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
-                <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">`
+            pintarModoTiempo()
         } else {
             stopTimer()
         }
@@ -349,15 +334,19 @@ function stopTimer() {
 
 function mostrarBtnVueltas() {
 
-    let mostrarBorar = false
+    let mostrarBorrar = false
 
     if (modo == "contador") {
-        if (registrosContador.length > 0) { mostrarBorrar = true }
+        if (registrosContador.length > 0) {
+            mostrarBorrar = true
+        }
     } else {
-        if (registrosTiempo.length > 0) { mostrarBorar = true }
+        if (registrosTiempo.length > 0) {
+            mostrarBorrar = true
+        }
     }
 
-    (mostrarBorar) ? (
+    (mostrarBorrar) ? (
         botonesRegistros.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
     <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>
@@ -495,10 +484,10 @@ function mostrarVueltasPantalla(vueltas) {
         }
 
         nombreVuelta = document.createElement("input")
-        nombreVuelta.type = "text"  
+        nombreVuelta.type = "text"
         nombreVuelta.placeholder = vuelta.nombre
         nombreVuelta.classList = "inputRegistros"
-        nombreVuelta.setAttribute("onchange", `mostrarMensaje(this.value,${vuelta.numero-1})`)
+        nombreVuelta.setAttribute("onchange", `mostrarMensaje(this.value,${vuelta.numero - 1})`)
 
         newRegistro.appendChild(nombreVuelta)
 
@@ -519,13 +508,26 @@ function setMiliseg(val) {
     miliseg = Number(val);
 }
 
-const mostrarMensaje = (value, numero) => 
-{   
+const mostrarMensaje = (value, numero) => {
 
     if (modo == "contador") {
         registrosContador[numero].nombre = value
     } else {
         registrosTiempo[numero].nombre = value
-     }
+    }
 
+}
+
+
+
+function pintarModoTiempo() {
+    counterTimer[0].innerHTML = `
+    <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
+    <input class = "number" type="text" maxlength="2" value=${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)} onchange="setSegundos(this.value)">:
+    <input class = "number" type="text" maxlength="2" value=${((miliseg <= 9 && miliseg >= 0) ? ("0" + miliseg) : miliseg)} onchange="setMiliseg(this.value)">    
+    `
+}
+
+function pintarModoContador () {
+    counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
 }
