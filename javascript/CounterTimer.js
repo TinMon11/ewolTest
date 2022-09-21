@@ -47,6 +47,8 @@ btnTiempo.addEventListener("click", () => { mostrarTiempo() })
 
 function mostrarContador() {
     modo = "contador"
+    registroVueltas.innerHTML = "";
+    botonesRegistros.innerHTML = "";
     btnTiempo.classList.remove("boton-modo-active")
     btnContador.classList.add("boton-modo-active")
     counterTimer[0].innerHTML = `
@@ -57,6 +59,8 @@ function mostrarContador() {
 
 function mostrarTiempo() {
     modo = "tiempo"
+    registroVueltas.innerHTML = "";
+    botonesRegistros.innerHTML = "";
     btnContador.classList.remove("boton-modo-active")
     btnTiempo.classList.add("boton-modo-active")
     counterTimer[0].innerHTML = `
@@ -66,6 +70,7 @@ function mostrarTiempo() {
     `
     let inputs = Array.from(document.getElementsByClassName('number'));
     parseNumbers(inputs)
+    
 }
 
 // Parseo los numeros del cronometro/timer (si es contador tomo solo 1 elemento, si es Timer tmb los otros)
@@ -286,7 +291,6 @@ function colorBG() {
 
 // Funciones para CRONOMETRO (tiempo hacia arriba)
 function timerUp() {
-    console.log(modo)
     if (!timerRunning) {
         (modo == "contador") ? intervalo = setInterval(cronometro, 1000) : intervalo = setInterval(cronometro, 10)
     }
@@ -382,15 +386,13 @@ function registroVuelta() {
         let tiempo = segundos;
         let tiempoAnterior = cantidadRegistros === 0 ? 0 : (registrosContador[cantidadRegistros - 1].tiempo)
         let diferencia = segundos - tiempoAnterior
-        let nombre = "Inserte Nombre"
+        let nombre = "Insert Your Name"
         let marca = new vueltaContador(numero, tiempo, diferencia, nombre)
 
         registrosContador.push(marca)
         mostrarVueltasPantalla(registrosContador)
 
     } else { // Para el MODO TIEMPO
-
-        console.log(minutos)
 
         let minutosAnterior, segundosAnterior, milisegAnterior, minutosDiferencia, segundosDiferencia, milisegDiferencia;
 
@@ -458,7 +460,7 @@ function registroVuelta() {
 
         // Resto de variables del Array de registros en modo TIEMPO
 
-        let nombre = "Inserte Nombre"
+        let nombre = "Insert Your Name"
         let marca = new vueltaTiempo(numero, segundos, minutos, miliseg, diferencia, nombre)
         registrosTiempo.push(marca)
 
@@ -477,24 +479,29 @@ function BorrarVueltas() {
 }
 
 
-function mostrarVueltasPantalla(vueltas, posicion) {
+function mostrarVueltasPantalla(vueltas) {
 
     registroVueltas.innerHTML = ""
 
-    vueltas.forEach(vuelta => {
+    vueltas.forEach((vuelta, index) => {
+
+
+        posicion = vuelta.numero;
         newRegistro = document.createElement('div')
         if (modo == "contador") {
             newRegistro.innerText = (`Vuelta N° ${vuelta.numero} - Tiempo ${vuelta.tiempo} seg. - Diferencia ${vuelta.diferencia} seg. - `)
         } else {
-            newRegistro.innerText = (`Vuelta N° ${vuelta.numero} - Tiempo ${vuelta.minutos}:${vuelta.segundos}:${vuelta.miliseg}. - Diferencia ${vuelta.diferencia} seg. - `)
+            newRegistro.innerText = (`Vuelta N° ${vuelta.numero}- Tiempo ${(vuelta.minutos <= 9) ? "0" + (vuelta.minutos) : (vuelta.minutos)}:${(vuelta.segundos <= 9) ? "0" + (vuelta.segundos) : (vuelta.segundos)}:${(vuelta.miliseg <= 9) ? "0" + (vuelta.miliseg) : (vuelta.miliseg)}.- Diferencia ${vuelta.diferencia} seg. - `)
         }
 
         nombreVuelta = document.createElement("input")
-        nombreVuelta.type = "text"
-        nombreVuelta.placeholder = "Inserte Nombre  "
+        nombreVuelta.type = "text"  
+        nombreVuelta.placeholder = vuelta.nombre
         nombreVuelta.classList = "inputRegistros"
+        nombreVuelta.setAttribute("onchange", `mostrarMensaje(this.value,${vuelta.numero-1})`)
 
         newRegistro.appendChild(nombreVuelta)
+
         registroVueltas.appendChild(newRegistro)
 
     });
@@ -512,3 +519,13 @@ function setMiliseg(val) {
     miliseg = Number(val);
 }
 
+const mostrarMensaje = (value, numero) => 
+{   
+
+    if (modo == "contador") {
+        registrosContador[numero].nombre = value
+    } else {
+        registrosTiempo[numero].nombre = value
+     }
+
+}
