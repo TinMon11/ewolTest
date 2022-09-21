@@ -14,17 +14,28 @@ let botonesRegistros = document.getElementsByClassName("botones-registros")[0]
 let counterTimer = document.getElementsByClassName("counter-timer")
 
 // Creo clase "vuelta" para el array de registros de vueltas
-class vuelta {
+class vueltaContador {
     constructor(numero, tiempo, diferencia, nombre) {
         this.numero = numero,
-            this.tiempo = tiempo,
+        this.tiempo = tiempo,
+        this.diferencia = diferencia,
+        this.nombre = nombre
+    }
+
+}
+class vueltaTiempo {
+    constructor(numero, segundos, minutos, miliseg, diferencia, nombre) {
+        this.numero = numero,
+            this.segundos = segundos,
+            this.minutos = minutos,
+            this.miliseg = miliseg,
             this.diferencia = diferencia,
             this.nombre = nombre
     }
 
 }
 
-let vueltas = [] // Array de vueltas donde llevaré los registros
+let registrosContador = [] // Array de vueltas donde llevaré los registros
 let modo = "contador" // inicializo en modo "contador" la pantalla
 mostrarContador()
 
@@ -77,7 +88,7 @@ let timerRunning = false // var para saber si el timer esta corriendo, impide qu
 btnReset.addEventListener("click", () => {
     modo === "contador" ? mostrarContador() : mostrarTiempo()
     segundos = 0;
-    vueltas = [];
+    registrosContador = [];
     registroVueltas.innerHTML = "";
     botonesRegistros.innerHTML = "";
     btnStartDown.classList.add("boton-disabled")
@@ -334,19 +345,19 @@ function stopTimer() {
 
 function mostrarBtnVueltas() {
 
-    (vueltas.length > 0) ? (
+    (registrosContador.length > 0) ? (
         botonesRegistros.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
     <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>
     `) :
         (botonesRegistros.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>`
-    )
+        )
 }
 
 function registroVuelta() {
 
-    let cantidadRegistros = vueltas.length
+    let cantidadRegistros = registrosContador.length
     let numero = (cantidadRegistros === 0 ? 1 : (cantidadRegistros + 1))
 
     if (cantidadRegistros === 0) {
@@ -357,30 +368,30 @@ function registroVuelta() {
 
     // Calculo diferencia con la vuelta anterior
 
-    let tiempoAnterior = cantidadRegistros === 0 ? 0 : (vueltas[cantidadRegistros - 1].tiempo)
+    let tiempoAnterior = cantidadRegistros === 0 ? 0 : (registrosContador[cantidadRegistros - 1].tiempo)
 
     if (modo == "contador") {
         let tiempo = segundos;
         let diferencia = segundos - tiempoAnterior
         let nombre = "Inserte Nombre"
-        let marca = new vuelta(numero, tiempo, diferencia, nombre)
-        vueltas.push(marca)
+        let marca = new vueltaContador(numero, tiempo, diferencia, nombre)
+        registrosContador.push(marca)
     } else {
 
         let minutosAsegundos = minutos * 60;
         let tiempo = minutosAsegundos + segundos
         let diferencia = tiempo - tiempoAnterior
         let nombre = "Inserte Nombre"
-        let marca = new vuelta(numero, tiempo, diferencia, nombre)
-        vueltas.push(marca)
+        let marca = new vueltaContador(numero, tiempo, diferencia, nombre)
+        registrosContador.push(marca)
     }
 
-    mostrarVueltasPantalla(vueltas, cantidadRegistros)
+    mostrarVueltasPantalla(registrosContador)
 
 }
 
 function BorrarVueltas() {
-    vueltas = [];
+    registrosContador = [];
     registroVueltas.innerHTML = ""
     botonesRegistros.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
@@ -390,16 +401,21 @@ function BorrarVueltas() {
 
 function mostrarVueltasPantalla(vueltas, posicion) {
 
-    newRegistro = document.createElement('div')
-    newRegistro.innerText = (`Vuelta N° ${vueltas[posicion].numero} - Tiempo ${vueltas[posicion].tiempo} seg. - Diferencia ${vueltas[posicion].diferencia} seg. - `
-    )
-    nombreVuelta = document.createElement("input")
-    nombreVuelta.type = "text"
-    nombreVuelta.placeholder = "Inserte Nombre  "
-    nombreVuelta.classList = "inputRegistros"
+    registroVueltas.innerHTML =""
 
-    newRegistro.appendChild(nombreVuelta)
-    registroVueltas.appendChild(newRegistro)
+    vueltas.forEach( vuelta => {
+        newRegistro = document.createElement('div')
+        newRegistro.innerText = (`Vuelta N° ${vuelta.numero} - Tiempo ${vuelta.tiempo} seg. - Diferencia ${vuelta.diferencia} seg. - `)
+        
+        nombreVuelta = document.createElement("input")
+        nombreVuelta.type = "text"
+        nombreVuelta.placeholder = "Inserte Nombre  "
+        nombreVuelta.classList = "inputRegistros"
+    
+        newRegistro.appendChild(nombreVuelta)
+        registroVueltas.appendChild(newRegistro)
+        
+    });
 
 }
 
