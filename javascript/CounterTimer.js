@@ -17,9 +17,9 @@ let counterTimer = document.getElementsByClassName("counter-timer")
 class vueltaContador {
     constructor(numero, tiempo, diferencia, nombre) {
         this.numero = numero,
-        this.tiempo = tiempo,
-        this.diferencia = diferencia,
-        this.nombre = nombre
+            this.tiempo = tiempo,
+            this.diferencia = diferencia,
+            this.nombre = nombre
     }
 
 }
@@ -35,7 +35,8 @@ class vueltaTiempo {
 
 }
 
-let registrosContador = [] // Array de vueltas donde llevaré los registros
+let registrosContador = [] // Array de vueltas donde llevaré los registros modo Contador
+let registrosTiempo = [] // Array de vueltas donde llevaré los registros modo Tiempo
 let modo = "contador" // inicializo en modo "contador" la pantalla
 mostrarContador()
 
@@ -86,9 +87,8 @@ let timerRunning = false // var para saber si el timer esta corriendo, impide qu
 
 // Boton de Reset - Vuelve seg a 0, borra registros de vueltas.
 btnReset.addEventListener("click", () => {
-    modo === "contador" ? mostrarContador() : mostrarTiempo()
+    modo === "contador" ? (mostrarContador(), registrosContador = []) : (mostrarTiempo(), registrosTiempo = [])
     segundos = 0;
-    registrosContador = [];
     registroVueltas.innerHTML = "";
     botonesRegistros.innerHTML = "";
     btnStartDown.classList.add("boton-disabled")
@@ -195,6 +195,7 @@ function countDown() {
     if (modo == "contador") {
         if (!cronRunning && segundos > 0) {
             registroVueltas.innerHTML = "";
+            btnStartDown.innerText = "DETENER TEMPORIZADOR"
             intervalo = setInterval(timer, 1000)
         }
     } else {
@@ -202,6 +203,7 @@ function countDown() {
             if ((segundos >= 0) && (minutos >= 0) && (miliseg >= 0)) {
                 if ((segundos + minutos + miliseg) > 0) {
                     registroVueltas.innerHTML = "";
+                    btnStartDown.innerText = "DETENER TEMPORIZADOR"
                     intervalo = setInterval(timer, 10)
                 }
             }
@@ -215,7 +217,6 @@ function timer() {
     if (modo == "contador") {
         if (segundos > 0) {
             timerRunning = true;
-            btnStartDown.innerText = "DETENER TEMPORIZADOR"
             btnStartUp.classList.add("boton-disabled")
 
             if (modo == "contador") {
@@ -233,7 +234,6 @@ function timer() {
         if (minutos >= 0 && segundos >= 0 && miliseg >= 0) {
 
             timerRunning = true;
-            btnStartDown.innerText = "DETENER TEMPORIZADOR"
             btnStartUp.classList.add("boton-disabled")
 
             if (miliseg > 0) {
@@ -286,13 +286,13 @@ function colorBG() {
 
 // Funciones para CRONOMETRO (tiempo hacia arriba)
 function timerUp() {
+    console.log(modo)
     if (!timerRunning) {
         (modo == "contador") ? intervalo = setInterval(cronometro, 1000) : intervalo = setInterval(cronometro, 10)
     }
 }
 
 function cronometro() {
-
     if (modo == "contador") {
         if (segundos >= 0) {
             cronRunning = true;
@@ -345,7 +345,15 @@ function stopTimer() {
 
 function mostrarBtnVueltas() {
 
-    (registrosContador.length > 0) ? (
+    let mostrarBorar = false
+
+    if (modo == "contador") {
+        if (registrosContador.length > 0) { mostrarBorrar = true }
+    } else {
+        if (registrosTiempo.length > 0) { mostrarBorar = true }
+    }
+
+    (mostrarBorar) ? (
         botonesRegistros.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
     <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>
@@ -357,41 +365,111 @@ function mostrarBtnVueltas() {
 
 function registroVuelta() {
 
-    let cantidadRegistros = registrosContador.length
-    let numero = (cantidadRegistros === 0 ? 1 : (cantidadRegistros + 1))
+    // Para el modo contador    
+    if (modo == "contador") {
 
-    if (cantidadRegistros === 0) {
-        botonesRegistros.innerHTML = `
+        let cantidadRegistros = registrosContador.length
+        let numero = (cantidadRegistros === 0 ? 1 : (cantidadRegistros + 1))
+
+        if (cantidadRegistros === 0) {
+            botonesRegistros.innerHTML = `
         <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
         <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>`
-    }
+        }
 
-    // Calculo diferencia con la vuelta anterior
+        // Calculo diferencia con la vuelta anterior
 
-    let tiempoAnterior = cantidadRegistros === 0 ? 0 : (registrosContador[cantidadRegistros - 1].tiempo)
-
-    if (modo == "contador") {
         let tiempo = segundos;
+        let tiempoAnterior = cantidadRegistros === 0 ? 0 : (registrosContador[cantidadRegistros - 1].tiempo)
         let diferencia = segundos - tiempoAnterior
         let nombre = "Inserte Nombre"
         let marca = new vueltaContador(numero, tiempo, diferencia, nombre)
-        registrosContador.push(marca)
-    } else {
 
-        let minutosAsegundos = minutos * 60;
-        let tiempo = minutosAsegundos + segundos
-        let diferencia = tiempo - tiempoAnterior
-        let nombre = "Inserte Nombre"
-        let marca = new vueltaContador(numero, tiempo, diferencia, nombre)
         registrosContador.push(marca)
+        mostrarVueltasPantalla(registrosContador)
+
+    } else { // Para el MODO TIEMPO
+
+        console.log(minutos)
+
+        let minutosAnterior, segundosAnterior, milisegAnterior, minutosDiferencia, segundosDiferencia, milisegDiferencia;
+
+        let cantidadRegistros = registrosTiempo.length
+        let numero = (cantidadRegistros === 0 ? 1 : (cantidadRegistros + 1))
+
+        if (cantidadRegistros === 0) {
+            botonesRegistros.innerHTML = `
+        <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
+        <button class="boton-panel" id="btn-vueltas" onclick="BorrarVueltas()"}>BORRAR VUELTAS</button>`
+        }
+
+        // Tomo los tiempos de la vuelta anterior (min, seg y milisg)
+        if (cantidadRegistros === 0) {
+            minutosAnterior = 0;
+            segundosAnterior = 0;
+            milisegAnterior = 0;
+
+        } else {
+            minutosAnterior = registrosTiempo[cantidadRegistros - 1].minutos;
+            segundosAnterior = registrosTiempo[cantidadRegistros - 1].segundos;
+            milisegAnterior = registrosTiempo[cantidadRegistros - 1].miliseg;
+        }
+
+        // Calculo Minutos de Diferencia
+
+        if (minutos > minutosAnterior) {
+            minutosDiferencia = minutos - minutosAnterior
+            if (segundos < segundosAnterior) {
+                minutosDiferencia = minutosDiferencia - 1
+            }
+        } else {
+            minutosDiferencia = 0;
+        }
+
+        (minutosDiferencia < 9) ? (minutosDiferencia = "0" + minutosDiferencia) : (minutosDiferencia)
+
+        // Calculo Segundos de Diferencia
+
+        if (segundos >= segundosAnterior) {
+            segundosDiferencia = segundos - segundosAnterior;
+        } else {
+            segundosDiferencia = 60 + segundos - segundosAnterior
+        }
+
+        if ((miliseg < milisegAnterior) && (segundos !== segundosAnterior)) {
+            segundosDiferencia = segundosDiferencia - 1;
+        }
+
+        (segundosDiferencia < 9) ? (segundosDiferencia = "0" + segundosDiferencia) : (segundosDiferencia)
+
+        // Calculo miliseg de Diferencia
+
+        if (miliseg >= milisegAnterior) {
+            milisegDiferencia = miliseg - milisegAnterior;
+        } else {
+            milisegDiferencia = 100 + miliseg - milisegAnterior
+        }
+
+        (milisegDiferencia < 9) ? (milisegDiferencia = "0" + milisegDiferencia) : (milisegDiferencia)
+
+        // Uno los 3 calculos para tener la diferencia en una sola variable:
+
+        let diferencia = `${minutosDiferencia}:${segundosDiferencia}:${milisegDiferencia}`
+
+        // Resto de variables del Array de registros en modo TIEMPO
+
+        let nombre = "Inserte Nombre"
+        let marca = new vueltaTiempo(numero, segundos, minutos, miliseg, diferencia, nombre)
+        registrosTiempo.push(marca)
+
+        mostrarVueltasPantalla(registrosTiempo)
     }
 
-    mostrarVueltasPantalla(registrosContador)
 
 }
 
 function BorrarVueltas() {
-    registrosContador = [];
+    (modo == "contador") ? registrosContador = [] : registrosTiempo = [];
     registroVueltas.innerHTML = ""
     botonesRegistros.innerHTML = `
     <button class="boton-panel" id="btn-vueltas" onclick="registroVuelta()"}>MARCAR VUELTA</button>
@@ -401,20 +479,24 @@ function BorrarVueltas() {
 
 function mostrarVueltasPantalla(vueltas, posicion) {
 
-    registroVueltas.innerHTML =""
+    registroVueltas.innerHTML = ""
 
-    vueltas.forEach( vuelta => {
+    vueltas.forEach(vuelta => {
         newRegistro = document.createElement('div')
-        newRegistro.innerText = (`Vuelta N° ${vuelta.numero} - Tiempo ${vuelta.tiempo} seg. - Diferencia ${vuelta.diferencia} seg. - `)
-        
+        if (modo == "contador") {
+            newRegistro.innerText = (`Vuelta N° ${vuelta.numero} - Tiempo ${vuelta.tiempo} seg. - Diferencia ${vuelta.diferencia} seg. - `)
+        } else {
+            newRegistro.innerText = (`Vuelta N° ${vuelta.numero} - Tiempo ${vuelta.minutos}:${vuelta.segundos}:${vuelta.miliseg}. - Diferencia ${vuelta.diferencia} seg. - `)
+        }
+
         nombreVuelta = document.createElement("input")
         nombreVuelta.type = "text"
         nombreVuelta.placeholder = "Inserte Nombre  "
         nombreVuelta.classList = "inputRegistros"
-    
+
         newRegistro.appendChild(nombreVuelta)
         registroVueltas.appendChild(newRegistro)
-        
+
     });
 
 }
@@ -429,3 +511,4 @@ function setSegundos(val) {
 function setMiliseg(val) {
     miliseg = Number(val);
 }
+
