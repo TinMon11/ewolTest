@@ -13,7 +13,7 @@ let registroVueltas = document.getElementsByClassName("registros")[0]
 let botonesRegistros = document.getElementsByClassName("botones-registros")[0]
 let counterTimer = document.getElementsByClassName("counter-timer")
 
-// Creo clase "vuelta" para el array de registros de vueltas
+// Creo clase "vuelta" para el array de registros de vueltas modo Contador y modo Tiempo
 class vueltaContador {
     constructor(numero, tiempo, diferencia, nombre) {
         this.numero = numero,
@@ -23,6 +23,7 @@ class vueltaContador {
     }
 
 }
+
 class vueltaTiempo {
     constructor(numero, segundos, minutos, miliseg, diferencia, nombre) {
         this.numero = numero,
@@ -38,10 +39,10 @@ class vueltaTiempo {
 let registrosContador = [] // Array de vueltas donde llevaré los registros modo Contador
 let registrosTiempo = [] // Array de vueltas donde llevaré los registros modo Tiempo
 let modo = "contador" // inicializo en modo "contador" la pantalla
+
 mostrarContador()
 
-
-// al boton de Contador / Tiempo los tomo y asigno funcion para mostrar cada pantalla
+// al boton de Contador / Tiempo los tomo y asigno funcion para mostrar cada pantalla al presionarlos
 btnContador.addEventListener("click", () => { mostrarContador() })
 btnTiempo.addEventListener("click", () => { mostrarTiempo() })
 
@@ -79,9 +80,9 @@ function parseNumbers(array) {
     segundos = Number(array[0].innerHTML)
 
     if (array.length > 1) {
-        miliseg = Number(array[2].value)
+        minutos = Number(array[0].value);
         segundos = Number(array[1].value);
-        minutos = Number(array[0].value)
+        miliseg = Number(array[2].value)
     }
 }
 
@@ -113,7 +114,7 @@ btnAumentar.addEventListener("click", () => {
             btnStartUp.classList.remove("boton-disabled"),
             segundos > 0 && btnStartDown.classList.remove("boton-disabled")
         )
-    } else {
+    } else { // para el modo TIEMPO sería esto.
         segundos = segundos + 1;
         segundos > 59 && (segundos = 0, minutos = minutos + 1)
         pintarModoTiempo()
@@ -139,7 +140,7 @@ btnDisminiur.addEventListener("click", () => {
         pintarModoContador()
         segundos < 1 && btnStartDown.classList.add("boton-disabled")
         segundos < 0 && btnStartUp.classList.add("boton-disabled")
-    } else {
+    } else { // para el modo TIEMPO seria esto
         segundos = segundos - 1;
         segundos < 0 && (segundos = 59, minutos = minutos - 1)
         pintarModoTiempo()
@@ -165,7 +166,7 @@ btnStartDown.addEventListener("click", () => {
     }
 })
 
-// Boton de cronometro (hacia arriba)
+// Boton de cronometro (hacia arriba). Si el timer esta corriendo no se ejecuta.
 btnStartUp.addEventListener("click", () => {
     if (!timerRunning) {
         if (btnStartUp.innerText == "INICIAR CRONOMETRO") {
@@ -188,7 +189,7 @@ btnStartUp.addEventListener("click", () => {
 // Declaracion de Funciones para Temporizador (tiempo hacia abajo)
 
 function countDown() {
-
+    
     if (modo == "contador") {
         if (!cronRunning && segundos > 0) {
             registroVueltas.innerHTML = "";
@@ -208,7 +209,7 @@ function countDown() {
     }
 }
 
-
+// esta es la funcion que se ejecuta dentro del SetInterval
 function timer() {
 
     if (modo == "contador") {
@@ -264,8 +265,8 @@ function backgrounChanger() {
     btnStartDown.addEventListener("click", () => {
         clearInterval(transicionBG)
         documento.classList.remove("fondo-temporizador")
-    })
-    transicionBG = setInterval(colorBG, 2000)
+        })
+        transicionBG = setInterval(colorBG, 2000)
 }
 
 function colorBG() {
@@ -313,21 +314,28 @@ function cronometro() {
 
 // Funcion cuando presionas DETENER en algun momento
 function stopTimer() {
+    
+        if (modo == "contador") {
+            segundos > 0 && btnStartDown.classList.remove("boton-disabled")
+            segundos >= 0 && btnStartUp.classList.remove("boton-disabled")
+        } else {
+            if (segundos >= 0 && minutos >= 0) {
+                btnStartUp.classList.remove("boton-disabled")
+                btnStartDown.classList.remove("boton-disabled")
+            }
+        }
+
+        if (btnStartDown.innerText == "Temporizador OK") {
+            btnStartDown.classList.add("boton-disabled")
+        }
+
+
+    
     btnStartDown.innerText = "INICIAR TEMPORIZADOR"
     btnStartUp.innerText = "INICIAR CRONOMETRO"
     clearInterval(intervalo);
     cronRunning = false;
     timerRunning = false;
-
-    if (modo == "contador") {
-        segundos >= 0 && btnStartDown.classList.remove("boton-disabled")
-        segundos >= 0 && btnStartUp.classList.remove("boton-disabled")
-    } else {
-        if (segundos >= 0 && minutos >= 0) {
-            btnStartUp.classList.remove("boton-disabled")
-            btnStartDown.classList.remove("boton-disabled")
-        }
-    }
 }
 
 // Registro de vueltas. Botones. Listados de Marcas.
@@ -335,7 +343,7 @@ function stopTimer() {
 function mostrarBtnVueltas() {
 
     let mostrarBorrar = false
-
+    // si ya hay algun registro, mostrare el boton BORRAR.
     if (modo == "contador") {
         if (registrosContador.length > 0) {
             mostrarBorrar = true
@@ -395,6 +403,7 @@ function registroVuelta() {
         }
 
         // Tomo los tiempos de la vuelta anterior (min, seg y milisg)
+        // si no hay, obviamente será 0 el tiempo anterior.
         if (cantidadRegistros === 0) {
             minutosAnterior = 0;
             segundosAnterior = 0;
@@ -443,7 +452,7 @@ function registroVuelta() {
 
         (milisegDiferencia < 9) ? (milisegDiferencia = "0" + milisegDiferencia) : (milisegDiferencia)
 
-        // Uno los 3 calculos para tener la diferencia en una sola variable:
+        // Unir los 3 calculos para tener la diferencia en una sola variable.
 
         let diferencia = `${minutosDiferencia}:${segundosDiferencia}:${milisegDiferencia}`
 
@@ -508,6 +517,9 @@ function setMiliseg(val) {
     miliseg = Number(val);
 }
 
+
+// Funcion para guardar el nombre de la marca cuando se pone manualmente.
+// Lo tomo del input, junto con la posición del array de ese elemento, y se lo asigno al "nombre" de dicha marca.
 const guardarNombre = (value, numero) => {
 
     if (modo == "contador") {
@@ -518,7 +530,7 @@ const guardarNombre = (value, numero) => {
 
 }
 
-
+// Funciones de "pintado" de tiempos en pantalla (para no repetirlas en cada paso anterior.)
 function pintarModoTiempo() {
     counterTimer[0].innerHTML = `
     <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
