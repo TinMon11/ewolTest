@@ -104,7 +104,7 @@ btnAumentar.addEventListener("click", () => {
 
     if (modo == "contador") {
         segundos = segundos + 1;
-        pintarModoContador ()
+        pintarModoContador()
 
         segundos < 0 ? (
             btnStartUp.classList.add("boton-disabled"),
@@ -136,7 +136,7 @@ btnDisminiur.addEventListener("click", () => {
 
     if (modo == "contador") {
         segundos = segundos - 1;
-        pintarModoContador ()
+        pintarModoContador()
         segundos < 1 && btnStartDown.classList.add("boton-disabled")
         segundos < 0 && btnStartUp.classList.add("boton-disabled")
     } else {
@@ -218,7 +218,7 @@ function timer() {
 
             if (modo == "contador") {
                 segundos = segundos - 1;
-                pintarModoContador ()
+                pintarModoContador()
             }
         } else {
             stopTimer()
@@ -291,7 +291,7 @@ function cronometro() {
             btnStartDown.classList.add("boton-disabled")
             btnStartUp.innerText = "DETENER CRONOMETRO"
             segundos = segundos + 1;
-            pintarModoContador ()
+            pintarModoContador()
         }
         else { stopTimer() }
 
@@ -487,7 +487,7 @@ function mostrarVueltasPantalla(vueltas) {
         nombreVuelta.type = "text"
         nombreVuelta.placeholder = vuelta.nombre
         nombreVuelta.classList = "inputRegistros"
-        nombreVuelta.setAttribute("onchange", `mostrarMensaje(this.value,${vuelta.numero - 1})`)
+        nombreVuelta.setAttribute("onchange", `guardarNombre(this.value,${vuelta.numero - 1})`)
 
         newRegistro.appendChild(nombreVuelta)
 
@@ -508,7 +508,7 @@ function setMiliseg(val) {
     miliseg = Number(val);
 }
 
-const mostrarMensaje = (value, numero) => {
+const guardarNombre = (value, numero) => {
 
     if (modo == "contador") {
         registrosContador[numero].nombre = value
@@ -519,7 +519,6 @@ const mostrarMensaje = (value, numero) => {
 }
 
 
-
 function pintarModoTiempo() {
     counterTimer[0].innerHTML = `
     <input class = "number" type="text" maxlength="2" value=${((minutos <= 9 && minutos >= 0) ? ("0" + minutos) : minutos)} onchange="setMinutos(this.value)">:
@@ -528,6 +527,6 @@ function pintarModoTiempo() {
     `
 }
 
-function pintarModoContador () {
+function pintarModoContador() {
     counterTimer[0].innerHTML = `<p class="number">${((segundos <= 9 && segundos >= 0) ? ("0" + segundos) : segundos)}</p>`
 }
